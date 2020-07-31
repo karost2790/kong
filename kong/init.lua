@@ -727,7 +727,6 @@ function Kong.access()
 
       kong_global.reset_log(kong)
     end
-
     ctx.workspace = old_ws
   end
 
@@ -761,7 +760,9 @@ function Kong.access()
   -- we intent to proxy, though balancer may fail on that
   ctx.KONG_PROXIED = true
 
-  return Kong.response()
+  if kong.ctx.core.buffered_proxying and ngx.req.http_version() < 2 then
+    return Kong.response()
+  end
 end
 
 do
@@ -784,10 +785,6 @@ do
   }
 
   function Kong.response()
-    if ngx.req.http_version() >= 2 or not kong.ctx.core.buffered_proxying then
-      return
-    end
-
     local plugins_iterator = runloop.get_plugins_iterator()
 
     local ctx = ngx.ctx
