@@ -16,7 +16,6 @@ local find = string.find
 local lower = string.lower
 local type = type
 local error = error
-local pcall = pcall
 local tonumber = tonumber
 local check_phase = phase_checker.check
 local check_not_phase = phase_checker.check_not
@@ -322,11 +321,8 @@ local function new(self)
       end
     end
 
-    local ok, prefix = pcall(function()
-      return ngx.var.upstream_x_forwarded_prefix
-    end)
-
-    if not ok or not prefix then
+    local prefix = ngx.var.upstream_x_forwarded_prefix
+    if not prefix then
       return "/"
     end
 
